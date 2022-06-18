@@ -1,15 +1,17 @@
 const APP_PREFIX = 'Budget-Tracker';     
 const VERSION = 'version_01';
 const CACHE_NAME = APP_PREFIX + VERSION;
-
+const DATA_CACHING = APP_PREFIX + "-data"
 
 const FILES_TO_CACHE = [
     "/",
     "./index.html",
-    "./assets/css/style.css",
-    "./assets/js/db.js",
-    "./assets/js/index.js",
+    "./css/styles.css",
+    "./js/idb.js",
+    "./js/index.js",
+    "./icons/icon-72x72.png"
   ];
+
 
 
 self.addEventListener('install', function (e) {
@@ -41,10 +43,32 @@ self.addEventListener('activate', function(e) {
       })
     );
   });
-
+//Checks whether its possible to get online
   self.addEventListener('fetch', function (e) {
     console.log('fetch request : ' + e.request.url)
-    e.respondWith(
+    if (e.request.url.includes("/api")) {
+        e.respondWith(caches.match(e.request).then(function(response) {
+            // caches.match() always resolves
+            // but in case of success response will have value
+            if (response !== undefined) {
+              return response;
+            } else {
+              return fetch(e.request).then(function (response) {
+                // response may be used only once
+                // we need to save clone to put one copy in cache
+                // and serve second one
+                let responseClone = response.clone();
+        
+                caches.open(DATA_CACHING).then(function (cache) {
+                  cache.put(e.request, responseClone);
+                });
+                return response;
+              });
+            }
+          })); 
+    }
+else {
+ e.respondWith(
       caches.match(e.request).then(function (request) {
         if (request) { // if cache is available, respond with cache
           console.log('responding with cache : ' + e.request.url)
@@ -58,4 +82,5 @@ self.addEventListener('activate', function(e) {
         // return request || fetch(e.request)
       })
     )
+    }
   })
