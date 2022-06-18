@@ -16,7 +16,6 @@ Clone the repo here https://github.com/barkleylikecharles/Budget-Tracker
 User must do a npm i to initiate all packages 
 
 ## Usage
-In your terminal 
 npm start
 To access the app after starting the server, go to http://localhost:3001 in your browser.
 
